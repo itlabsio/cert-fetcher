@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: certfetcher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: certfetcher-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: certfetcher
+subjects:
+  - kind: ServiceAccount
+    name: certfetcher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: certfetcher
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - "get"
+  - "list"
+  - "update"
+  - "create"
+
