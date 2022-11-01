@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -53,7 +51,6 @@ func configure() programConfig {
 	flag.StringVar(&flags.vault.jwt, "vault-jwt", "", "Vault jwt token")
 	flag.StringVar(&flags.vault.role, "vault-role", defaultVaultRole, "vault role")
 	flag.StringVar(&flags.kubeConfig, "kubeconfig", defaultKubeConfigPath(), "path to kubeconfig")
-	flag.StringVar(&flags.configYaml, "secretsconfig", defaultSecretsConfig, "Secrets configuration yaml")
 	flag.BoolVar(&flags.vault.tlsNoVerify, "tlsnoverify", false, "don't check certificate authority")
 	flag.Parse()
 	if jwt, err := readInClusterJWT(); err != nil || flags.vault.jwt != "" {
@@ -67,14 +64,8 @@ func configure() programConfig {
 	pc.vault.role = readEnvButPreferFlagString("VAULT_ROLE", flags.vault.role, defaultVaultRole)
 	pc.vault.tlsNoVerify = readEnvButPreferFlagBool("VAULT_SKIP_VERIFY", flags.vault.tlsNoVerify, false)
 	pc.kubeConfig = flags.kubeConfig
-	pc.configYaml = readEnvButPreferFlagString("SECRETSCONFIG", flags.configYaml, defaultSecretsConfig)
-	createSecretsConfig(&pc)
 	createKubeClient(&flags, &pc)
 	return pc
-}
-
-func createVaultConfig() {
-
 }
 
 func createKubeClient(flagsConfig, programConfig *programConfig) {
@@ -90,19 +81,6 @@ func createKubeClient(flagsConfig, programConfig *programConfig) {
 	} else {
 		logrus.Printf(err.Error())
 	}
-}
-
-func createSecretsConfig(pc *programConfig) {
-	yamlBytes, err := ioutil.ReadFile(pc.configYaml)
-	if err != nil {
-		logrus.Errorf("Can not find configuration file: %s", err.Error())
-		return
-	}
-	conflist, err := config.ReadConfig(yaml.NewDecoder(bytes.NewReader(yamlBytes)))
-	if err != nil {
-		logrus.Errorf("Can not read the file: %s", err.Error())
-	}
-	pc.secrets = conflist.Secrets
 }
 
 func readEnvButPreferFlagString(envName, flagValue, defaultValue string) string {
