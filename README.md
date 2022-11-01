@@ -8,4 +8,4 @@ In order not to update the data unnecessarily, a hash sum is calculated from the
 
 Documentation
 
-[**Examples**](https://github.com/itlabsio/cert-fetcher/deploy)
+[**Examples**](https://github.com/itlabsio/cert-fetcher/tree/main/deploy)
