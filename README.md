@@ -16,7 +16,7 @@ CGO_ENABLED=0 GOOS=linux go build -v -o refresher ./cmd/refresher/...
 refresher -help
 Usage of ./refresher:
   -kubeconfig string
-        path to kubeconfig (default "/home/fpatlin/.kube/config")
+        path to kubeconfig (default "$HOME/.kube/config")
   -vault-addr string
         Vault server address (default "http://127.0.0.1:8200")
   -vault-jwt string
