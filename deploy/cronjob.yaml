@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-tls-certs
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - env:
+            - name: VAULT_ADDR
+              value: https://vault.example.com
+            - name: VAULT_AUTHMETHOD
+              value: kubernetes
+            - name: VAULT_ROLE
+              value: certfetcher
+            - name: VAULT_PATH
+              value: vault-path
+            - name: VAULT_SKIP_VERIFY
+              value: "true"
+            image: itlabsio/cert-fetcher:v0.0.1
+            name: certfetcher
+            resources:
+              limits:
+                memory: 128Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          serviceAccount: certfetcher
+          serviceAccountName: certfetcher
+          terminationGracePeriodSeconds: 30
+  schedule: 03 03 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
