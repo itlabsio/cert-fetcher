@@ -13,12 +13,11 @@ import (
 )
 
 const (
-	kubeSAPath           = "/var/run/secrets/kubernetes.io/serviceaccount/"
-	defaultVaultAddr     = "http://127.0.0.1:8200"
-	defaultVaultPath     = "kubernetes"
-	defaultVaultRole     = "default"
-	defaultKubeConfig    = ".kube/config"
-	defaultSecretsConfig = "secrets.yaml"
+	kubeSAPath        = "/var/run/secrets/kubernetes.io/serviceaccount/"
+	defaultVaultAddr  = "http://127.0.0.1:8200"
+	defaultVaultPath  = "kubernetes"
+	defaultVaultRole  = "default"
+	defaultKubeConfig = ".kube/config"
 )
 
 func defaultKubeConfigPath() string {

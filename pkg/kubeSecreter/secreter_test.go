@@ -36,7 +36,7 @@ func TestBase64Encoding(t *testing.T) {
 	desired := "SGVsbG8h"
 	result := encodeBase64([]byte(testStr))
 	if string(result) != desired {
-		t.Errorf("Кодирование неверно: ожидалось %s, пришло %s", desired, result)
+		t.Errorf("Expected %s, got %s", desired, result)
 	}
 }
 
@@ -45,7 +45,7 @@ func TestBase64Decoding(t *testing.T) {
 	testStr := "SGVsbG8h"
 	result, _ := decodeBase64(base64bytes([]byte(testStr)))
 	if string(result) != desired {
-		t.Errorf("Кодирование неверно: ожидалось %s, пришло %s", desired, result)
+		t.Errorf("Expected %s, got %s", desired, result)
 	}
 
 }
@@ -116,15 +116,14 @@ func TestIsHashesEquals(t *testing.T) {
 	cert, key := encodeBase64(secretBytes([]byte(testCert))), encodeBase64(secretBytes([]byte(testKey)))
 	hashdata := HashCertPlusKey(cert, key)
 	if !isHashesEquals(s, hashdata) {
-		t.Errorf("Ожидалось %s, по факту %s", s.Annotations[tlsHashAnnotation], string(hashdata))
+		t.Errorf("Expected %s, got %s", s.Annotations[tlsHashAnnotation], string(hashdata))
 	}
 }
 
 func TestAnnotationValidation(t *testing.T) {
 	s := createSecretWithValidData()
-	//cert, key := encodeBase64(secretBytes([]byte(testCert))), encodeBase64(secretBytes([]byte(testKey)))
 	if !isValidHashAnnotation(s) {
-		t.Error("Неверная хэш-сумма в аннотации")
+		t.Error("Not valid hash sum")
 	}
 }
 
@@ -133,17 +132,17 @@ func TestIsSecretNeedToBeUpdated(t *testing.T) {
 	cert, key := encodeBase64([]byte(testCert)), encodeBase64([]byte(testKey))
 	hashdata := HashCertPlusKey(cert, key)
 	if isSecretNeedToBeUpdated(s, hashdata) {
-		t.Error("Данные секрета и хэш совпадают, обновление не требуется")
+		t.Error("No need update data")
 	}
 	s1 := s.DeepCopy()
-	s1.Data[tlsDataCert] = []byte("Неведомая хуйня")
+	s1.Data[tlsDataCert] = []byte("Lorem Ipsum")
 	if !isSecretNeedToBeUpdated(s1, hashdata) {
-		t.Error("Данные секрета изменены, требуется обновление")
+		t.Error("Need update data")
 	}
 	s2 := s.DeepCopy()
-	s2.Annotations[tlsHashAnnotation] = "Неведомая хуйня"
+	s2.Annotations[tlsHashAnnotation] = "Lorem Ipsum"
 	if !isSecretNeedToBeUpdated(s2, hashdata) {
-		t.Error("Хэш-сумма в аннотации изменена, требуется обновление")
+		t.Error("Hash sum updated, no need update data")
 	}
 }
 
@@ -152,18 +151,18 @@ func TestUpdateSecretData(t *testing.T) {
 	secret.Type = "NoTLS"
 	up, err := updateSecretData(secret, []byte(testCert), []byte(testKey))
 	if err == nil {
-		t.Error("Неправильный тип, обновление должно завершаться с ошибкой")
+		t.Error("Wrong type")
 	}
 	if err != nil && up {
 		t.Error(err.Error())
 	}
 	dk := secret.Data[tlsDataKey]
 	if string(dk) != testKey {
-		t.Errorf("Ожидалось %s, получено %s", testKey, dk)
+		t.Errorf("Expected %s, got %s", testKey, dk)
 	}
 	dc := secret.Data[tlsDataCert]
 	if string(dc) != string(testCert) {
-		t.Errorf("Ожидалось %s, получено %s", testCert, dc)
+		t.Errorf("Expected %s, got %s", testCert, dc)
 	}
 }
 
@@ -172,11 +171,11 @@ func TestUpdateSecret(t *testing.T) {
 	upcrt, upkey := getUpdatedCertAndKey()
 	err := UpdateSecret(secret, upcrt, upkey)
 	if err != nil {
-		t.Errorf("Ошибка обновления: %s", err.Error())
+		t.Errorf("Error: %s", err.Error())
 	}
 	err = UpdateSecret(secret, upcrt, upkey)
 	if err == nil {
-		t.Errorf("Попытка повторного обновления должна завершаться с ошибкой")
+		t.Errorf("Can not update second time")
 	}
 }
 
@@ -201,7 +200,7 @@ func TestSecretUpdate(t *testing.T) {
 			t.Error(err.Error())
 		}
 		if !up {
-			t.Error("Данные секрета не обновлены")
+			t.Error("Secret doesnt update")
 		}
 		s1, err := client.clientSet.CoreV1().Secrets(s.Namespace).Update(&s)
 		if err != nil {
@@ -209,7 +208,7 @@ func TestSecretUpdate(t *testing.T) {
 		}
 		c1, _ := s1.Data[tlsDataCert]
 		if string(c1) != testCert {
-			t.Errorf("Неверные данные секрета. Ожидалось %s, по факту %s", testCert, string(c1))
+			t.Errorf("Wrong data secret. Expected %s, got %s", testCert, string(c1))
 		}
 	}
 	t.Cleanup(func() {

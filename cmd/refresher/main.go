@@ -50,7 +50,7 @@ func main() {
 func getNamespace(kubectl *kubeSecreter.KubeClient) *v1.NamespaceList {
 	data, err := kubeSecreter.ReadNamespaces(kubectl.GetClientSet())
 	if err != nil {
-		logrus.Errorf("Ошибка получения namespaces: %s", err.Error())
+		logrus.Errorf("Can not get namespaces: %s", err.Error())
 		return nil
 	}
 	return data
@@ -59,14 +59,14 @@ func getNamespace(kubectl *kubeSecreter.KubeClient) *v1.NamespaceList {
 func getTLSData(ctx context.Context, vaultPath string, vsvc *vaultApi.VaultService) *tlsSecret.TlsSecret {
 	data, err := tlsSecret.ReadTLSSecret(ctx, vaultPath, vsvc)
 	if err != nil {
-		logrus.Errorf("Ошибка чтения секрета: %s", err.Error())
+		logrus.Errorf("Can not read secret: %s", err.Error())
 		return nil
 	}
 	return data
 }
 
 func updateWithNamespaceKubeSecrets(ctx context.Context, kubectl *kubeSecreter.KubeClient, secretName string, secret tlsSecret.TlsSecret, ns string) {
-	logrus.Infof("Обновляются данные в кластере")
+	logrus.Infof("Updated data in cluster")
 	nsl, err := kubeSecreter.ReadSecrets(kubectl.GetClientSet(), secretName, ns)
 	if err != nil {
 		logrus.Errorf("Can not get secrets for namespace %s: %s", ns, err.Error())
