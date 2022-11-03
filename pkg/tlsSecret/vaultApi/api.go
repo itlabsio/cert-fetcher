@@ -59,7 +59,7 @@ func NewWithKubernetes(ctx context.Context, address, authPath, role, jwt string,
 func NewWithToken(address, token string, timeout int32) (*VaultService, error) {
 	v := new(VaultService)
 	config := api.DefaultConfig()
-	//TODO Сделать конфигурирумым
+	//TODO make configure
 	tlsConf := api.TLSConfig{Insecure: true}
 	if err := config.ConfigureTLS(&tlsConf); err != nil {
 		return nil, err

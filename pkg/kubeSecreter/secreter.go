@@ -61,12 +61,12 @@ func UpdateSecret(secret *v1.Secret, cert, key secretBytes) error {
 		_, err := updateSecretData(secret, cert, key)
 		return err
 	}
-	return fmt.Errorf("No need any updates")
+	return fmt.Errorf("no need any updates")
 }
 
 func updateSecretData(secret *v1.Secret, cert, key secretBytes) (bool, error) {
 	if secret.Type != tlsSecretType {
-		return false, fmt.Errorf("Секрет должен иметь тип TLS")
+		return false, fmt.Errorf("wrong secret type, need type TLS")
 	}
 	data := make(map[string][]byte)
 	data[tlsDataCert] = cert
@@ -104,7 +104,6 @@ func isSecretNeedToBeUpdated(secret *v1.Secret, newDataHash hashBytes) bool {
 	}
 	return false
 }
-
 
 func isHashesEquals(secret *v1.Secret, newDataHash hashBytes) bool {
 	if secret.Annotations == nil {

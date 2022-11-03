@@ -44,5 +44,5 @@ func ReadTLSSecret(ctx context.Context, path string, v getter) (secret *TlsSecre
 	if data.Data != nil && data.Data.Data != nil {
 		return newTlsSecret(data.Data)
 	}
-	return nil, fmt.Errorf("Not found data in request")
+	return nil, fmt.Errorf("not found data in request")
 }
