@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	v1 "k8s.io/api/core/v1"
+  metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -95,7 +96,7 @@ func updateWithNamespaceKubeSecrets(ctx context.Context, kubectl *kubeSecreter.K
 			logrus.Errorf("Object data %s/%s does not update: %s", ns, s.Name, err.Error())
 			continue
 		}
-		_, err := kubectl.GetClientSet().CoreV1().Secrets(ns).Update(&s)
+		_, err := kubectl.GetClientSet().CoreV1().Secrets(ns).Update(context.TODO(), &s, metav1.UpdateOptions{})
 		if err != nil {
 			logrus.Errorf("Can not save object %s/%s: %s", ns, s.Name, err.Error())
 		} else {

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+  "context"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,11 +34,11 @@ func ReadNamespaces(k *kubernetes.Clientset) (*v1.NamespaceList, error) {
 	labelOptions := metav1.ListOptions{
 		LabelSelector: "itlabs.io/certfetcher=true",
 	}
-	return k.CoreV1().Namespaces().List(labelOptions)
+	return k.CoreV1().Namespaces().List(context.TODO(), labelOptions)
 }
 
 func ReadSecrets(k *kubernetes.Clientset, secretName, namespace string) (*v1.SecretList, error) {
-	return k.CoreV1().Secrets(namespace).List(metav1.ListOptions{FieldSelector: "metadata.name=" + secretName})
+	return k.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{FieldSelector: "metadata.name=" + secretName})
 }
 
 func CreateNewSecret(k *kubernetes.Clientset, secretName, namespace string) error {
@@ -50,7 +51,8 @@ func CreateNewSecret(k *kubernetes.Clientset, secretName, namespace string) erro
 		tlsDataCert: encodeBase64([]byte("testcert")),
 		tlsDataKey:  encodeBase64([]byte("testkey")),
 	}
-	_, err := k.CoreV1().Secrets(namespace).Create(&s)
+	labelOptions := metav1.CreateOptions{DryRun: []string{"Hello", "Theodore"}}
+	_, err := k.CoreV1().Secrets(namespace).Create(context.TODO(), &s, labelOptions)
 	return err
 }
 

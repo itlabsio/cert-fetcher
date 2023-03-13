@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"testing"
+  "context"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -51,10 +52,10 @@ func TestBase64Decoding(t *testing.T) {
 }
 
 func setNsLabels(client *KubeClient, ns string, labels map[string]string) {
-	nsObj, _ := client.clientSet.CoreV1().Namespaces().Get(ns, metav1.GetOptions{})
+	nsObj, _ := client.clientSet.CoreV1().Namespaces().Get(context.TODO(), ns, metav1.GetOptions{})
 
 	nsObj.SetLabels(labels)
-	client.clientSet.CoreV1().Namespaces().Update(nsObj)
+	client.clientSet.CoreV1().Namespaces().Update(context.TODO(), nsObj, metav1.UpdateOptions{})
 }
 
 func createNS(client *KubeClient) {
@@ -62,7 +63,7 @@ func createNS(client *KubeClient) {
 		ns := v1.Namespace{}
 		ns.Name = nsn
 		ns.SetLabels(map[string]string{"deleteme": "true"})
-		_, err := client.clientSet.CoreV1().Namespaces().Create(&ns)
+		_, err := client.clientSet.CoreV1().Namespaces().Create(context.TODO(), &ns, metav1.CreateOptions{DryRun: []string{"Hello", "Theodore"}})
 		if err != nil {
 			if errors.IsAlreadyExists(err) {
 				setNsLabels(client, nsn, map[string]string{"deleteme": "true"})
@@ -74,7 +75,7 @@ func createNS(client *KubeClient) {
 }
 func deleteAll(client *KubeClient) {
 	for _, nsn := range getTestNamespaces() {
-		client.clientSet.CoreV1().Namespaces().Delete(nsn, &metav1.DeleteOptions{})
+		client.clientSet.CoreV1().Namespaces().Delete(context.TODO(), nsn, metav1.DeleteOptions{})
 	}
 }
 
@@ -88,7 +89,7 @@ func createSecret(client *KubeClient) {
 			tlsDataCert: encodeBase64([]byte("testcert")),
 			tlsDataKey:  encodeBase64([]byte("testkey")),
 		}
-		_, err := client.clientSet.CoreV1().Secrets(s.GetNamespace()).Create(&s)
+    _, err := client.clientSet.CoreV1().Secrets(s.GetNamespace()).Create(context.TODO(), &s, metav1.CreateOptions{DryRun: []string{"Hello", "WORLD"}})
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -202,7 +203,7 @@ func TestSecretUpdate(t *testing.T) {
 		if !up {
 			t.Error("Secret doesnt update")
 		}
-		s1, err := client.clientSet.CoreV1().Secrets(s.Namespace).Update(&s)
+		s1, err := client.clientSet.CoreV1().Secrets(s.Namespace).Update(context.TODO(), &s, metav1.UpdateOptions{})
 		if err != nil {
 			t.Error(err.Error())
 		}

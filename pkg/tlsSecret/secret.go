@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"cert-fetcher/pkg/tlsSecret/vaultApi"
+  "cert-fetcher/pkg/tlsSecret/vaultApi"
 )
 
 type TlsSecret struct {

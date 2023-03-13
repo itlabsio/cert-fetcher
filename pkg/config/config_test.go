@@ -10,34 +10,35 @@ import (
 
 const (
 	confJson = `{"secrets":[{
-		"vaultPath":"secret/data/path/to/wildcard_certificate",
-		"secretName": "wildcard-tls",
+		"vaultPath":"secret/data/acme/tls_certificates/*.acme.org",
+		"secretName": "wildcard-acme-org-tls",
 		"namespaces":["default", "johndoe", "janedoe"]}]
 	}`
 	noConfJson = `{"secrets":[{
-		"vualtPath":"secret/data/path/to/wildcard_certificate",
-		"secretNmae": "wildcard-tls",
+		"vualtPath":"secret/data/acme/tls_certificates/*.acme.org",
+		"secretNmae": "wildcard-acme-org-tls",
 		"namespaces11":["default", "johndoe", "janedoe"]}]
 	}`
 	badJson  = `BadFormat`
 	confYaml = `
 secrets:
-- vaultPath: secret/data/path/to/wildcard_certificate
-  secretName: "wildcard-tls"
+- vaultPath: secret/data/acme/tls_certificates/*.acme.org
+  secretName: "wildcard-acme-org-tls"
   namespaces:
   - "default"
   - "johndoe"
   - "janedoe"`
 	noConfYaml = `---
 secrets:
-- vualtPath: "secret/data/path/to/wildcard_certificate"
-  secretNmae: "wildcard-tls"
+- vualtPath: "secret/data/acme/tls_certificates/*.acme.org"
+  secretNmae: "wildcard-acme-org-tls"
   namespaces101:
   - "default"
-  - "johndoe"
-  - "janedoe"`
+  - "johndoe-dev"
+  - "janedoe-dev"`
 	badYaml = `Bad yaml`
 )
+
 
 func TestConfigJsonDecoder(t *testing.T) {
 	var test = []string{confJson, noConfJson, badJson}
@@ -47,17 +48,17 @@ func TestConfigJsonDecoder(t *testing.T) {
 		//validConfig
 		case 0:
 			if err == nil {
-				if conf.Secrets[0].SecretName != "wildcard-itlabs-io-tls" {
+				if conf.Secrets[0].SecretName != "wildcard-acme-org-tls" {
 					t.Errorf("Secret name: expected '%s', decoded '%s' from\n'%s'",
-						"wildcard-tls",
+						"wildcard-acme-org-tls",
 						conf.Secrets[0].SecretName,
 						tst)
 				}
 				t.Logf("%s", conf.Secrets[0].Namespaces)
 
-				if conf.Secrets[0].VaultPath != "secret/data/path/to/wildcard_certificate" {
+				if conf.Secrets[0].VaultPath != "secret/data/acme/tls_certificates/*.acme.org" {
 					t.Errorf("Vault path: expected '%s', decoded '%s'",
-						"secret/data/path/to/wildcard_certificate",
+						"secret/data/acme/tls_certificates/*.acme.org",
 						conf.Secrets[0].VaultPath)
 				}
 			} else {
@@ -66,8 +67,8 @@ func TestConfigJsonDecoder(t *testing.T) {
 		//noConfJson
 		case 1:
 			if err == nil {
-				if conf.Secrets[0].SecretName == "wildcard-tls" &&
-					conf.Secrets[0].VaultPath == "secret/data/path/to/wildcard_certificate" {
+				if conf.Secrets[0].SecretName == "wildcard-acme-org-tls" &&
+					conf.Secrets[0].VaultPath == "secret/data/acme/tls_certificates/*.acme.org" {
 					t.Error("Secret name")
 				}
 			} else {
@@ -89,15 +90,15 @@ func TestConfigDecoder(t *testing.T) {
 		//validConfig
 		case 0:
 			if err == nil {
-				if conf.Secrets[0].SecretName != "wildcard-tls" {
+				if conf.Secrets[0].SecretName != "wildcard-acme-org-tls" {
 					t.Errorf("Secret name: expected '%s', decoded '%s' from\n'%s'",
-						"wildcard-tls",
+						"wildcard-acme-org-tls",
 						conf.Secrets[0].SecretName,
 						tst)
 				}
-				if conf.Secrets[0].VaultPath != "secret/data/path/to/wildcard_certificate" {
+				if conf.Secrets[0].VaultPath != "secret/data/acme/tls_certificates/*.acme.org" {
 					t.Errorf("Vault path: expected '%s', decoded '%s'",
-						"secret/data/path/to/wildcard_certificate",
+						"secret/data/path/to/wildcard_certificates/*.acme.org",
 						conf.Secrets[0].VaultPath)
 				}
 			} else {
@@ -107,7 +108,7 @@ func TestConfigDecoder(t *testing.T) {
 		case 1:
 			if err == nil {
 				if conf.Secrets[0].SecretName == "wildcard-tls" &&
-					conf.Secrets[0].VaultPath == "ssecret/data/path/to/wildcard_certificate" {
+					conf.Secrets[0].VaultPath == "ssecret/data/acme/tls_certificates/*.acme.org" {
 					t.Error("Secret name")
 				}
 			} else {
